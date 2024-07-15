@@ -1,24 +1,27 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-[Table("tb_credenciais")]
-public class Credencial 
+namespace Models 
 {
-    [Key]
-    [Column("id_credencial")]
-    public Guid Id { get; set; }
+    [Table("tb_credenciais")]
+    public class Credencial 
+    {
+        [Key]
+        [Column("id_credencial")]
+        public Guid Id { get; set; }
 
-    [Required]
-    [Column("email")]
-    public string Email { get; set; }
-    
-    [Required]
-    [MaxLength(10)]
-    [Column("senha")]
-    public string Senha { get; set; }
-    [ForeignKey("Usuario")]
-    [Column("id_usuario")]
-    public Guid UsuarioId { get; set; }
-    
-    public Usuario Usuario { get; set; }
+        [Required]
+        [Column("email")]
+        public string Email { get; set; }
+        
+        [Required]
+        [MaxLength(10)]
+        [Column("senha")]
+        public string Senha { get; set; }
+        [ForeignKey("Usuario")]
+        [Column("id_usuario")]
+        public Guid UsuarioId { get; set; }
+        
+        public Usuario Usuario { get; set; }
+    }
 }
