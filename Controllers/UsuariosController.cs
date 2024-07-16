@@ -1,31 +1,44 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using Models.HttpResponse;
 
 namespace Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuariosControllers : ControllerBase
+    public class UsuariosController : ControllerBase
     {
-        // POST: api/usuarios
-        [HttpPost]
-        public void Registrar([FromBody] Usuario usuario) {
-            // Implementação de cadastro do usuário.
-        }
         // GET: api/usuarios/{id}
         [HttpGet("{id}")]
-        public void ObterPelaId(Guid id) {
+        public UsuarioResponse ObterPelaId(Guid id)
+        {
             // Implementação da consulta de um usuário.
+            return new UsuarioResponse
+            {
+                Id = Guid.NewGuid(),
+                Nome = "Willian",
+                Sobrenome = "Sant Anna",
+                Endereco = new EnderecoResponse
+                {
+                    Logradouro = "Rua Toriba",
+                    Bairro = "Colégio",
+                    Municipio = "Rio de Janeiro",
+                    Estado = "Rio de Janeirio",
+                    Cep = "21545260"
+                }
+            };
         }
         // PUT: api/usuarios/{id}
         [HttpPut("{id}")]
-        public void AtuaizarPelaId(Guid id) {
+        public void AtualizarPelaId(Guid id)
+        {
 
         }
         // DELETE: api/usuarios/{id}
         [HttpDelete("{id}")]
-        public void DeletarPelaId(Guid id) {
+        public void DeletarPelaId(Guid id)
+        {
 
         }
     }
