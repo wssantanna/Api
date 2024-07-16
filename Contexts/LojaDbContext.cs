@@ -7,13 +7,10 @@ namespace Contexts
     {
         public LojaDbContext(DbContextOptions<LojaDbContext> configuracoes) : base (configuracoes) 
         {
-
         }
-
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Endereco> Enderecos { get; set; }
         public DbSet<Credencial> Credenciais { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelador)
         {
             // 1:N
