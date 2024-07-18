@@ -1,6 +1,7 @@
 using Contexts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using Models.HttpRequests;
 
 namespace Controllers
@@ -9,20 +10,71 @@ namespace Controllers
     [ApiController]
     public class ContasController : ControllerBase
     {
-        private readonly LojaDbContext database;
-        public ContasController(LojaDbContext contexto) 
+        private readonly LojaDbContext _contexto;
+        public ContasController(LojaDbContext contexto)
         {
-            database = contexto;
+            _contexto = contexto;
         }
         // POST: api/contas/autenticar
         [HttpPost("autenticar")]
-        public void Autenticar(CredencialRequest credencial) {
-            
+        public void Autenticar(CredencialRequest credencial)
+        {
+
         }
+        // Para acessar o recurso a partir do Postman, Insomnia e/ou curl:
         // POST: api/contas/registrar
         [HttpPost("registrar")]
-        public void Registrar([FromBody] UsuarioRequest usuario) {
-            // Implementação de cadastro do usuário.
+        public async Task<ActionResult> Registrar(
+            // Esse parâmetro representa a ficha de cadastro do usuário que 
+            // será enviada no corpo da requisição [FromBody].
+            //
+            // Nota: É recomendável enviar os dados no corpo da requisição 
+            // sempre que desejar utilizar do recurso de criptografia do protocolo HTTP.
+            [FromBody] UsuarioRequest registroUsuario
+        )
+        {
+            // Nesse trecho do código é realizado o cadastro o endereço no banco de dados.
+            // Nota: A ficha de cadastro do usuário possui o endereço, porém os dados capturado
+            // são estão organizados de uma maneira diferente do tipo utilizado para modelagem no banco de dados.
+            // Por este motivo, precisamos realizar uma normalização dos dados.
+
+            // Exemplo Logradouro (banco de dados) = registroUsuario.Endereco.Logradouro (dados da requisição)
+            _contexto.Enderecos.Add(new Endereco
+            {
+                Logradouro      = registroUsuario.Endereco.Logradouro,
+                Numero          = registroUsuario.Endereco.Numero,
+                Complemento     = registroUsuario.Endereco.Complemento,
+                Bairro          = registroUsuario.Endereco.Bairro,
+                Municipio       = registroUsuario.Endereco.Municipio,
+                Estado          = registroUsuario.Endereco.Estado,
+                Cep             = registroUsuario.Endereco.Cep
+            });
+            // Após realizar o cadastro do endereço no banco de dados é necessário confirmar
+            // a operação para que a operação seja finalizada e os dados registrados.
+            await _contexto.SaveChangesAsync();
+
+            _contexto.Usuarios.Add(new Usuario
+            {
+                Nome            = registroUsuario.Nome,
+                Sobrenome       = registroUsuario.Sobrenome,
+                EnderecoId      = registroUsuario.Endereco.Id
+            });
+
+            await _contexto.SaveChangesAsync();
+
+            _contexto.Credenciais.Add(new Credencial
+            {
+                Email           = registroUsuario.Credencial.Email,
+                Senha           = registroUsuario.Credencial.Senha,
+                UsuarioId       = registroUsuario.Id
+            });
+
+            await _contexto.SaveChangesAsync();
+
+            // Após a última operação de registro retornamos
+            // o status 200 - Ok, sem mais nenhuma informação no corpo da resposta.
+            return Ok();
+
         }
     }
 }

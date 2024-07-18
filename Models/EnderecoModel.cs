@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -35,6 +36,6 @@ namespace Models
         [MaxLength(8)]
         [Column("cep")]
         public string Cep { get; set; }
-        public Usuario Usuario { get; set; }
+        public ICollection<Usuario> Usuarios { get; set; }
     }
 }
