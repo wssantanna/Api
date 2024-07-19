@@ -93,7 +93,7 @@ namespace Controllers
                 await transacaoDeCadastro.CommitAsync();
 
                 // Após a última operação de registro retornamos
-                // o status 200 - Ok, sem mais nenhuma informação no corpo da resposta.
+                // o status 201 - Created, sem mais nenhuma informação no corpo da resposta.
                 return StatusCode(201, new { id = registroUsuario.Id, });
             }
             catch(Exception)
@@ -103,6 +103,7 @@ namespace Controllers
                 // permanentemente, e os dados não serão registrados nas tabelas
                 // em que não houve um erro durante o processo de registro.
                 transacaoDeCadastro.Rollback();
+                
                 return StatusCode(500, "Não foi possível realizar o cadastro!");
             }
 

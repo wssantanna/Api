@@ -17,14 +17,14 @@ namespace Controllers
             _contexto = contexto;
         }
         // GET: api/usuarios/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UsuarioResponse>> ObterPelaId(Guid id)
+        [HttpGet("{idUsuarioQueEstaBuscando}")]
+        public async Task<ActionResult<UsuarioResponse>> ObterPelaId(Guid idUsuarioQueEstaBuscando)
         {
             try
             {
                 var usuarioQueEstaBuscando = await _contexto.Usuarios
                                                 .Include(tabelaUsuario => tabelaUsuario.Endereco)
-                                                .FirstOrDefaultAsync(tabelaUsuario => tabelaUsuario.Id == id);
+                                                .FirstOrDefaultAsync(tabelaUsuario => tabelaUsuario.Id == idUsuarioQueEstaBuscando);
 
                 bool usuarioNaoEncontrado = usuarioQueEstaBuscando == null;
                 
