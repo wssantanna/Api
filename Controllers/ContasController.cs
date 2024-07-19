@@ -48,7 +48,7 @@ namespace Controllers
                 // Por este motivo, precisamos realizar uma normalização dos dados.
 
                 // Exemplo Logradouro (banco de dados) = registroUsuario.Endereco.Logradouro (dados da requisição)
-                _contexto.Enderecos.Add(new Endereco
+                var endereco = new Endereco
                 {
                     Logradouro      = registroUsuario.Endereco.Logradouro,
                     Numero          = registroUsuario.Endereco.Numero,
@@ -57,19 +57,25 @@ namespace Controllers
                     Municipio       = registroUsuario.Endereco.Municipio,
                     Estado          = registroUsuario.Endereco.Estado,
                     Cep             = registroUsuario.Endereco.Cep
-                });
+                };
+                _contexto.Enderecos.Add(endereco);
                 // Após realizar o cadastro do endereço no banco de dados é necessário confirmar
                 // a operação para que a operação seja finalizada e os dados registrados.
                 await _contexto.SaveChangesAsync();
 
-                _contexto.Usuarios.Add(new Usuario
+                registroUsuario.Endereco.Id = endereco.Id;
+
+                var usuario = new Usuario
                 {
                     Nome            = registroUsuario.Nome,
                     Sobrenome       = registroUsuario.Sobrenome,
                     EnderecoId      = registroUsuario.Endereco.Id
-                });
+                };
+                _contexto.Usuarios.Add(usuario);
 
                 await _contexto.SaveChangesAsync();
+
+                registroUsuario.Id = usuario.Id;
 
                 _contexto.Credenciais.Add(new Credencial
                 {
@@ -88,7 +94,7 @@ namespace Controllers
 
                 // Após a última operação de registro retornamos
                 // o status 200 - Ok, sem mais nenhuma informação no corpo da resposta.
-                return Ok();
+                return StatusCode(201, new { id = registroUsuario.Id, });
             }
             catch(Exception)
             {
