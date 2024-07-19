@@ -1,5 +1,7 @@
+using Contexts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.HttpResponse;
 
@@ -9,25 +11,50 @@ namespace Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
+        private readonly LojaDbContext _contexto;
+        public UsuariosController(LojaDbContext contexto)
+        {
+            _contexto = contexto;
+        }
         // GET: api/usuarios/{id}
         [HttpGet("{id}")]
-        public UsuarioResponse ObterPelaId(Guid id)
+        public async Task<ActionResult<UsuarioResponse>> ObterPelaId(Guid id)
         {
-            // Implementação da consulta de um usuário.
-            return new UsuarioResponse
+            try
             {
-                Id = Guid.NewGuid(),
-                Nome = "Willian",
-                Sobrenome = "Sant Anna",
-                Endereco = new EnderecoResponse
+                var usuarioQueEstaBuscando = await _contexto.Usuarios
+                                                .Include(tabelaUsuario => tabelaUsuario.Endereco)
+                                                .FirstOrDefaultAsync(tabelaUsuario => tabelaUsuario.Id == id);
+
+                bool usuarioNaoEncontrado = usuarioQueEstaBuscando == null;
+                
+                if(usuarioNaoEncontrado)
                 {
-                    Logradouro = "Rua Toriba",
-                    Bairro = "Colégio",
-                    Municipio = "Rio de Janeiro",
-                    Estado = "Rio de Janeirio",
-                    Cep = "21545260"
+                    return NotFound();
                 }
-            };
+
+                return Ok(
+                    new UsuarioResponse {
+                        Id              = usuarioQueEstaBuscando.Id,
+                        Nome            = usuarioQueEstaBuscando.Nome,
+                        Sobrenome       = usuarioQueEstaBuscando.Sobrenome,
+                        Endereco        = new EnderecoResponse
+                        {
+                            Logradouro  = usuarioQueEstaBuscando.Endereco.Logradouro,
+                            Numero      = usuarioQueEstaBuscando.Endereco.Numero,
+                            Complemento = usuarioQueEstaBuscando.Endereco.Complemento,
+                            Bairro      = usuarioQueEstaBuscando.Endereco.Bairro,
+                            Municipio   = usuarioQueEstaBuscando.Endereco.Municipio,
+                            Estado      = usuarioQueEstaBuscando.Endereco.Estado,
+                            Cep         = usuarioQueEstaBuscando.Endereco.Cep
+                        }
+                    }
+                );
+            }
+            catch(Exception){
+                return StatusCode(500, "Não foi possível realizar a consulta.");
+            }
+
         }
         // PUT: api/usuarios/{id}
         [HttpPut("{id}")]
